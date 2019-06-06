@@ -37,6 +37,9 @@ public class Escalonador {
 	// Numero de transacoes lidas
 	private int numberOfTransactions;
 	
+	// Objeto Historia informada pelo usuario
+	private Historia historiaInformada;
+	
 	// Ler do teclado
 	private Scanner reader;
 	
@@ -51,6 +54,7 @@ public class Escalonador {
 		this.transactions = new String();	
 		this.transactionArray = new ArrayList<String>();
 		this.numberOfTransactions = 0;
+		this.historiaInformada = new Historia();
 		this.reader = new Scanner(System.in);
 	}
 	
@@ -124,7 +128,7 @@ public class Escalonador {
 
 	private void readHistory() {
 		
-		System.out.println("Digite a historia:");
+		System.out.print("\nDigite a historia:");
 		// String lida
 		this.historyRead = reader.nextLine();
 		// String com split
@@ -136,6 +140,11 @@ public class Escalonador {
 			this.history.add(this.historySplited[i]);
 		}
 		
+		this.historiaInformada.criarHistoriaInicial(history);
+		
+		System.out.println("\nHistoria criada\n\n");
+		
+		this.historiaInformada.printHistoria();
 	}
 
 	private void readFile() {

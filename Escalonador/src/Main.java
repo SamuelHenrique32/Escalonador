@@ -6,9 +6,13 @@ public class Main {
 		
 		System.out.println("############## ESCALONADOR 2PL STRICT ##############\n");
 		
-		Escalonador e1 = new Escalonador();		
-		e1.showOptions();		
-		e1.readOption();
-		e1.handleOption();
+		Escalonador e1 = new Escalonador();	
+		
+		// repete execucao
+		while(true) {
+			e1.showOptions();		
+			e1.readOption();
+			e1.handleOption();	
+		}		
 	}
 }

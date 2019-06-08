@@ -64,7 +64,8 @@ public class Escalonador {
 		System.out.println("Escolha uma opcao:\n");
 		System.out.println("1- Ler do arquivo");
 		System.out.println("2- Digitar historia");
-		System.out.println("3- Digitar transações");
+		System.out.println("3- Digitar transacoes");
+		System.out.println("4- Mostrar transacoes");
 		System.out.print("Opcao: ");		
 	}
 
@@ -72,7 +73,7 @@ public class Escalonador {
 		
 		option = reader.nextLine();
 		
-		while(!option.equals("1") && !option.equals("2") && !option.equals("3")) {
+		while(!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4")) {
 			System.out.println("\nOpcao Invalida!");
 			this.showOptions();
 			option = reader.nextLine();
@@ -94,13 +95,26 @@ public class Escalonador {
 			break;
 			
 			case "3":
-				this.readTransactions();
-				
+				this.readTransactions();				
+			break;
+			
+			case "4":
+				this.showTransactions();
 			break;
 				
 			default:				
 				System.out.println("Ocorreu um erro, encerrando...");
 		}
+	}
+
+	private void showTransactions() {
+		
+		System.out.println("\nTransacoes Cadastradas:\n");
+		
+		for (Transacao t : informedTransactions) {
+			t.printTransacao();
+		}
+		
 	}
 
 	private void readTransactions() {
@@ -117,18 +131,13 @@ public class Escalonador {
 			
 				Transacao transactionToCreate = new Transacao();
 				transactionToCreate.criaTransacao(currentTransactionRead, numberOfTransactions);
-				this.informedTransactions.add(transactionToCreate);
-				
-				this.numberOfTransactions++;			
-				
+				this.informedTransactions.add(transactionToCreate);				
+				this.numberOfTransactions++;
 			}			
 		}
 		
 		System.out.println("\nVoce informou " + (this.numberOfTransactions) + " transacoes\n");
 		
-		for (Transacao t : informedTransactions) {
-			t.printTransacao();
-		}
 	}
 
 	private void readHistory() {

@@ -19,6 +19,7 @@ public class Historia {
 		}
 	}
 	
+
 	// metodo toString modificado
 	public void printHistoria() {
 	

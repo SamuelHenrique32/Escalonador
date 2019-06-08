@@ -1,10 +1,11 @@
 public class Operacao {
 
 	private String operacao;
-	private char transacao;
+	// Transacao a que pertence
+	private int transacao;
 	private int posicaoNaTransacao;
 	
-	public Operacao(String operacao, char transacao, int posicaoNaTransacao) {
+	public Operacao(String operacao, int transacao, int posicaoNaTransacao) {
 		super();
 		this.operacao = operacao;
 		this.transacao = transacao;
@@ -19,11 +20,11 @@ public class Operacao {
 		this.operacao = operacao;
 	}
 	
-	public char getTransacao() {
+	public int getTransacao() {
 		return transacao;
 	}
 	
-	public void setTransacao(char transacao) {
+	public void setTransacao(int transacao) {
 		this.transacao = transacao;
 	}
 	

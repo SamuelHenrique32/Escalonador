@@ -7,8 +7,8 @@ public class Escalonador {
 	// tamanho maximo de uma historia para leitura
 	private static final int maxHistorySize = 100;
 	
-	// quantidade maxima de transacoes para leitura
-	private static final int maxTransactionQuantity = 100;
+	//tamanho maximo de uma transacao
+	private static final int maxTransactionLength = 100;
 	
 	// Opcao do menu, String para nao dar problema para ler outros dados depois de ler int
 	private String option;
@@ -22,18 +22,12 @@ public class Escalonador {
 	// Arraylist cada posicao possui uma operacao
 	private ArrayList<String> history;
 	
+	// Array de transacoes informada pelo usuario
+	private ArrayList<Transacao> informedTransactions; 
+	
 	// Transacao atual lida do teclado, sera passada para a String transactions
 	private String currentTransactionRead;
 	
-	// para transacoes sem "*"
-	private String[] transactionsSplited;
-	
-	// Array com todas transacoes separadas por "*"
-	private String transactions;
-	
-	// Arraylist cada posicao possui uma transacao
-	private ArrayList<String> transactionArray;
-	 
 	// Numero de transacoes lidas
 	private int numberOfTransactions;
 	
@@ -49,18 +43,20 @@ public class Escalonador {
 		this.historyRead = new String();
 		this.historySplited = new String[maxHistorySize];
 		this.history = new ArrayList<String>();
+		this.informedTransactions = new ArrayList<Transacao>();
 		this.currentTransactionRead = new String();
-		this.transactionsSplited = new String[maxTransactionQuantity];
-		this.transactions = new String();	
-		this.transactionArray = new ArrayList<String>();
 		this.numberOfTransactions = 0;
-		this.historiaInformada = new Historia();
+		this.historiaInformada = new Historia();		
 		this.reader = new Scanner(System.in);
 	}
 	
 	//Ctrl + 3 -> ggas
 	public String getOption() {
 		return option;
+	}	
+
+	public static int getMaxTransactionLength() {
+		return maxTransactionLength;
 	}
 
 	public void showOptions() {
@@ -112,39 +108,48 @@ public class Escalonador {
 		System.out.println("\nDigite Enter para proxima transacao e -1 se todas as transacoes foram informadas");		
 		
 		while(!this.currentTransactionRead.equals("-1")) {
-			// Transacao lida
+			
 			System.out.print("Digite a transacao T" + this.numberOfTransactions + ": ");
-			currentTransactionRead = reader.nextLine();		
-			this.numberOfTransactions++;
-			this.transactions += this.currentTransactionRead + "*";
+			// Transacao lida
+			currentTransactionRead = reader.nextLine();
+			
+			if(!currentTransactionRead.equalsIgnoreCase("-1")) {
+			
+				Transacao transactionToCreate = new Transacao();
+				transactionToCreate.criaTransacao(currentTransactionRead, numberOfTransactions);
+				this.informedTransactions.add(transactionToCreate);
+				
+				this.numberOfTransactions++;			
+				
+			}			
 		}
 		
-		this.transactions = this.transactions.substring(0,this.transactions.indexOf("-1"));
+		System.out.println("\nVoce informou " + (this.numberOfTransactions) + " transacoes\n");
 		
-		System.out.println(this.transactions);
-
-		System.out.println("\nVoce informou " + (this.numberOfTransactions - 1) + " transacoes");
+		for (Transacao t : informedTransactions) {
+			t.printTransacao();
+		}
 	}
 
 	private void readHistory() {
 		
-		System.out.print("\nDigite a historia:");
-		// String lida
-		this.historyRead = reader.nextLine();
-		// String com split
-		this.historySplited = this.historyRead.split(" ");
-
-		// Posicoes preenchidas: historySplited.length-1
-		for(int i=0 ; i< this.historySplited.length ; i++) {
-			// Array com cada operacao
-			this.history.add(this.historySplited[i]);
-		}
-		
-		this.historiaInformada.criarHistoriaInicial(history);
-		
-		System.out.println("\nHistoria criada\n\n");
-		
-		this.historiaInformada.printHistoria();
+//		System.out.print("\nDigite a historia:");
+//		// String lida
+//		this.historyRead = reader.nextLine();
+//		// String com split
+//		this.historySplited = this.historyRead.split(" ");
+//
+//		// Posicoes preenchidas: historySplited.length-1
+//		for(int i=0 ; i< this.historySplited.length ; i++) {
+//			// Array com cada operacao
+//			this.history.add(this.historySplited[i]);
+//		}
+//		
+//		this.historiaInformada.criarHistoriaInicial(history);
+//		
+//		System.out.println("\nHistoria criada\n\n");
+//		
+//		this.historiaInformada.printHistoria();
 	}
 
 	private void readFile() {

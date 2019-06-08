@@ -1,0 +1,5 @@
+r1[x] w1[y] c1
+w2[x] w2[y] c2
+w3[z] w3[x] c3
+r4[w] w4[i] c4
+r5[s] w5[s] c5

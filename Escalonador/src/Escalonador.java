@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Escalonador {
 	
 	// tamanho maximo de uma historia para leitura
-	private static final int maxHistorySize = 100;
+	protected static final int maxHistorySize = 100;
 	
 	//tamanho maximo de uma transacao
 	private static final int maxTransactionLength = 100;
@@ -14,13 +14,7 @@ public class Escalonador {
 	private String option;
 	
 	// Historia lida do teclado
-	private String historyRead;
-	
-	// Para a historia sem espaços
-	private String[] historySplited;
-	
-	// Arraylist cada posicao possui uma operacao
-	private ArrayList<String> history;
+	private String historyRead;	
 	
 	// Array de transacoes informada pelo usuario
 	private ArrayList<Transacao> informedTransactions; 
@@ -32,7 +26,7 @@ public class Escalonador {
 	private int numberOfTransactions;
 	
 	// Objeto Historia informada pelo usuario
-	private Historia historiaInformada;
+	private Historia informedHistory;
 	
 	// Ler do teclado
 	private Scanner reader;
@@ -41,12 +35,10 @@ public class Escalonador {
 	public Escalonador() {
 		this.option = new String(); 
 		this.historyRead = new String();
-		this.historySplited = new String[maxHistorySize];
-		this.history = new ArrayList<String>();
 		this.informedTransactions = new ArrayList<Transacao>();
 		this.currentTransactionRead = new String();
 		this.numberOfTransactions = 0;
-		this.historiaInformada = new Historia();		
+		this.informedHistory = new Historia();		
 		this.reader = new Scanner(System.in);
 	}
 	
@@ -62,10 +54,10 @@ public class Escalonador {
 	public void showOptions() {
 		
 		System.out.println("Escolha uma opcao:\n");
-		System.out.println("1- Ler do arquivo");
-		System.out.println("2- Digitar historia");
-		System.out.println("3- Digitar transacoes");
-		System.out.println("4- Mostrar transacoes");
+		System.out.println("1- Ler transacoes do arquivo");
+		System.out.println("2- Digitar historia inicial");
+		System.out.println("3- Cadastrar transacoes");
+		System.out.println("4- Mostrar transacoes cadastradas");
 		System.out.print("Opcao: ");		
 	}
 
@@ -142,23 +134,14 @@ public class Escalonador {
 
 	private void readHistory() {
 		
-//		System.out.print("\nDigite a historia:");
-//		// String lida
-//		this.historyRead = reader.nextLine();
-//		// String com split
-//		this.historySplited = this.historyRead.split(" ");
-//
-//		// Posicoes preenchidas: historySplited.length-1
-//		for(int i=0 ; i< this.historySplited.length ; i++) {
-//			// Array com cada operacao
-//			this.history.add(this.historySplited[i]);
-//		}
-//		
-//		this.historiaInformada.criarHistoriaInicial(history);
-//		
-//		System.out.println("\nHistoria criada\n\n");
-//		
-//		this.historiaInformada.printHistoria();
+		System.out.println("\nOBS: As transacoes constituintes ja necessitam estar cadastradas");
+		System.out.print("Digite a historia: ");
+		
+		// String lida
+		this.historyRead = reader.nextLine();		
+		informedHistory.criarHistoriaInicial(historyRead);
+		
+		//this.informedHistory.printHistoria();
 	}
 
 	private void readFile() {

@@ -2,20 +2,29 @@ import java.util.ArrayList;
 
 public class Historia {
 
-	private ArrayList<Operacao> operacoes;
+	private ArrayList<Operacao> operations;
 	
+	// Para a historia sem espaços
+	private String[] historySplited;	
+
 	public Historia() {
 
-		operacoes = new ArrayList<Operacao>();
+		operations = new ArrayList<Operacao>();
+		this.historySplited = new String[Escalonador.maxHistorySize];
 	}
 
 	// Criar quando informada historia na opcao 2 do menu
-	// Ordem na transacao nao e relevante
-	protected void criarHistoriaInicial(ArrayList<String> history) {
+	protected void criarHistoriaInicial(String historyRead) {
 		
-		for (String s : history) {
-			Operacao opAtual = new Operacao(s, s.charAt(1), 0);
-			operacoes.add(opAtual);
+		// String com split
+		this.historySplited = historyRead.split(" ");
+		
+		// Posicoes preenchidas: historySplited.length-1
+		for(int i=0 ; i< this.historySplited.length ; i++) {
+
+			//para cada posicao, cria operacao e adiciona ao array de operacoes
+			operations.add(new Operacao(this.historySplited[i], 0, 0));
+			
 		}
 	}
 	
@@ -23,9 +32,9 @@ public class Historia {
 	// metodo toString modificado
 	public void printHistoria() {
 	
-		for (Operacao op : operacoes) {
+		for (Operacao op : operations) {
 			System.out.println("Operacao: " + op.getOperacao());
-			System.out.println("Transacao: " + op.getTransacao());
+			//System.out.println("Transacao: " + op.getTransacao());
 			//System.out.println("Posicao na transacao: " + op.getPosicaoNaTransacao());
 		}
 	}

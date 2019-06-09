@@ -34,6 +34,9 @@ public class Escalonador {
 
 	// Objeto Historia informada pelo usuario
 	private Historia informedHistory;
+	
+	// Objeto Historia gerado pela aplicacao
+	private Historia generatedHistory;
 
 	// Ler do teclado
 	private Scanner reader;
@@ -47,6 +50,7 @@ public class Escalonador {
 		this.currentTransactionRead = new String();
 		this.numberOfTransactions = 0;
 		this.informedHistory = new Historia();
+		this.generatedHistory = new Historia();
 		this.reader = new Scanner(System.in);
 	}
 
@@ -61,12 +65,13 @@ public class Escalonador {
 
 	public void showOptions() {
 
-		System.out.println("\nEscolha uma opcao:\n");
-		System.out.println("1- Ler transacoes do arquivo");			
-		System.out.println("2- Cadastrar transacoes");
-		System.out.println("3- Digitar historia inicial");
-		System.out.println("4- Mostrar transacoes cadastradas");
-		System.out.println("5- Mostrar transacoes armazenadas");
+		System.out.println("\n\nEscolha uma Opcao:\n");
+		System.out.println("1- Ler Transacoes do Arquivo");			
+		System.out.println("2- Cadastrar Transacoes");
+		System.out.println("3- Digitar Historia Inicial");
+		System.out.println("4- Mostrar Transacoes Cadastradas");
+		System.out.println("5- Mostrar Transacoes Armazenadas");
+		System.out.println("6- Gerar Historia de Execucao");
 		System.out.print("Opcao: ");
 	}
 
@@ -74,7 +79,7 @@ public class Escalonador {
 
 		option = reader.nextLine();
 
-		while (!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4") && !option.equals("5")) {
+		while (!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4") && !option.equals("5")  && !option.equals("6")) {
 			System.out.println("\nOpcao Invalida!");
 			this.showOptions();
 			option = reader.nextLine();
@@ -106,10 +111,45 @@ public class Escalonador {
 		case "5":
 			this.showTransactionsStored();
 		break;
+		
+		case "6":
+			this.generateHistory();
+		break;
 
 		default:
 			System.out.println("Ocorreu um erro, encerrando...");
 		}
+	}
+
+	private void generateHistory() {
+		
+		String optionToGenerateHistory = "0";		
+		
+		System.out.println("\nGerar Historia de Execucao:\n");		
+		showOptionsToGenerateHistory();
+		
+		optionToGenerateHistory = reader.nextLine();
+		
+		while(!optionToGenerateHistory.equals("1") && !optionToGenerateHistory.equals("2")) {
+			System.out.println("\nOpcao Invalida!");			
+			showOptionsToGenerateHistory();
+			optionToGenerateHistory = reader.nextLine();			
+		}
+		
+		System.out.print("\nOpcao Escolhida: ");
+		System.out.println(optionToGenerateHistory);
+		
+		if(optionToGenerateHistory.equals("1")) {
+			this.generatedHistory.createExecutionSequence(informedTransactions);
+		} else {
+			this.generatedHistory.createExecutionSequence(storedTransactions);
+		}				
+	}
+
+	private void showOptionsToGenerateHistory() {
+		System.out.println("1- Transacoes Informadas pelo Usuario");
+		System.out.println("2- Transacoes Armazenadas");
+		System.out.print("Escolha uma opcao:");
 	}
 
 	private void showTransactionsStored() {
@@ -162,7 +202,7 @@ public class Escalonador {
 
 		// String lida
 		this.historyRead = reader.nextLine();
-		informedHistory.criarHistoriaInicial(historyRead);
+		informedHistory.createInitialHistory(historyRead);
 
 		// this.informedHistory.printHistoria();
 	}
@@ -201,5 +241,6 @@ public class Escalonador {
 			System.err.printf("Erro na abertura do arquivo: %s.\n", e.getMessage());
 		}
 
-	}
+	}	
+	
 }

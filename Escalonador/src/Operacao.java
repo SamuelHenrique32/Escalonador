@@ -35,5 +35,12 @@ public class Operacao {
 	public void setPosicaoNaTransacao(int posicaoNaTransacao) {
 		this.posicaoNaTransacao = posicaoNaTransacao;
 	}
+
+	public void printOperation() {
+		
+		System.out.print(this.operacao + " ");
+		//System.out.println("Transacao: " + this.transacao);
+		//System.out.println("Posicao na Transacao:" + this.posicaoNaTransacao + "\n");		
+	}
 	
 }

@@ -1,4 +1,6 @@
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Historia {
 
@@ -14,7 +16,7 @@ public class Historia {
 	}
 
 	// Criar quando informada historia na opcao 2 do menu
-	protected void criarHistoriaInicial(String historyRead) {
+	public void createInitialHistory(String historyRead) {
 		
 		// String com split
 		this.historySplited = historyRead.split(" ");
@@ -26,10 +28,9 @@ public class Historia {
 			operations.add(new Operacao(this.historySplited[i], 0, 0));
 			
 		}
-	}
-	
+	}	
 
-	// metodo toString modificado
+	// Metodo toString modificado
 	public void printHistoria() {
 	
 		for (Operacao op : operations) {
@@ -37,5 +38,64 @@ public class Historia {
 			//System.out.println("Transacao: " + op.getTransacao());
 			//System.out.println("Posicao na transacao: " + op.getPosicaoNaTransacao());
 		}
+	}
+	
+	//Gera uma historia com base nas transacoes
+	public void createExecutionSequence(ArrayList<Transacao> transactions) {
+
+		// Adicionar todas operacoes de todas as transacoes no ArrayList		
+		for (Transacao t : transactions) {
+			//t.printTransacao();
+			for (Operacao op : t.getOperations()) {
+				operations.add(op);
+			}
+		}
+		
+		System.out.println("\nFormei a historia:\n");
+		for (Operacao op : operations) {
+			op.printOperation();
+		}
+		
+		// Sem considerar ordem das operacoes nas transacoes
+		System.out.println("\n\nEmbaralhei a historia:\n");
+		Collections.shuffle(operations);
+		for (Operacao op : operations) {
+			op.printOperation();
+		}
+		
+		// Numero de transacoes recebidas por parametro
+		int numberOfTransactions = transactions.size();
+		
+		// Posicao na transacao, utilizado para fazer a troca
+		int posAtTransaction = 0;
+		
+		// Itera para todas as transacoes
+		for(int i=0 ; i < numberOfTransactions ; i++) {
+			// Recupera transacao na posicao do Array
+			Transacao currentTransaction = transactions.get(i);
+			
+			System.out.println("\n");
+			System.out.println("Posicoes das operacoes pertencentes a transacao " + i + "\n");
+			// Itera em todas as operacoes da historia
+			for (Operacao op : operations) {
+				// Se a operacao pertencer a transacao atual
+				if(op.getTransacao() == i) {
+					
+					//Operacao currentOp = 
+					
+					// Mostra posicao da operacao na historia
+					System.out.print(operations.indexOf(op));
+					
+					// Mostra posicao na transacao que deve estar na posicao da historia
+					System.out.print(" - " + posAtTransaction + " - ");
+					
+					// Mostra operacao da transacao atual que deve ocupar posicao na historia
+					currentTransaction.getOperationAtPos(posAtTransaction).printOperation();
+					System.out.println();
+					posAtTransaction++;
+				}
+			}
+			posAtTransaction = 0;
+		}		
 	}
 }

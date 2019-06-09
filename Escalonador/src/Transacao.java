@@ -18,6 +18,9 @@ public class Transacao {
 		this.operations = new ArrayList<Operacao>();
 	}
 
+	public ArrayList<Operacao> getOperations() {
+		return operations;
+	}
 
 	public void criaTransacao(String currentTransactionRead, int numberOfTransactions) {
 		
@@ -39,6 +42,17 @@ public class Transacao {
 
 			}		
 		}		
+	}
+	
+	// Retorna operacao na posicao informada
+	public Operacao getOperationAtPos(int pos) {
+		
+		for (Operacao op : operations) {
+			if(op.getPosicaoNaTransacao() == pos) {
+				return op;
+			}
+		}
+		return null;
 	}
 	
 	public void printTransacao() {

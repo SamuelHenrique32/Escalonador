@@ -5,6 +5,8 @@ import java.util.Collections;
 public class Historia {
 
 	private ArrayList<Operacao> operations;
+	//private ArrayList<Operacao> shuffledOperations;
+	private Operacao[] shuffledOperations;
 	
 	// Para a historia sem espaços
 	private String[] historySplited;	
@@ -12,6 +14,8 @@ public class Historia {
 	public Historia() {
 
 		operations = new ArrayList<Operacao>();
+		//shuffledOperations = new ArrayList<Operacao>();
+		this.shuffledOperations = new Operacao[Escalonador.maxHistorySize];
 		this.historySplited = new String[Escalonador.maxHistorySize];
 	}
 
@@ -62,6 +66,7 @@ public class Historia {
 		for (Operacao op : operations) {
 			op.printOperation();
 		}
+		System.out.println();
 		
 		// Numero de transacoes recebidas por parametro
 		int numberOfTransactions = transactions.size();
@@ -73,29 +78,39 @@ public class Historia {
 		for(int i=0 ; i < numberOfTransactions ; i++) {
 			// Recupera transacao na posicao do Array
 			Transacao currentTransaction = transactions.get(i);
-			
-			System.out.println("\n");
-			System.out.println("Posicoes das operacoes pertencentes a transacao " + i + "\n");
+						
+			//System.out.println("\n");
+			//System.out.println("Posicoes das operacoes pertencentes a transacao " + i + "\n");
 			// Itera em todas as operacoes da historia
 			for (Operacao op : operations) {
 				// Se a operacao pertencer a transacao atual
 				if(op.getTransacao() == i) {
 					
-					//Operacao currentOp = 
-					
 					// Mostra posicao da operacao na historia
-					System.out.print(operations.indexOf(op));
+					//System.out.print(operations.indexOf(op));
 					
 					// Mostra posicao na transacao que deve estar na posicao da historia
-					System.out.print(" - " + posAtTransaction + " - ");
+					//System.out.print(" - " + posAtTransaction + " - ");
 					
 					// Mostra operacao da transacao atual que deve ocupar posicao na historia
-					currentTransaction.getOperationAtPos(posAtTransaction).printOperation();
-					System.out.println();
+					//currentTransaction.getOperationAtPos(posAtTransaction).printOperation();	
+					
+					//System.out.print("\nTrocar ");
+					//op.printOperation();
+					//System.out.println(" por: ");
+					//currentTransaction.getOperationAtPos(posAtTransaction).printOperation();
+					
+					shuffledOperations[operations.indexOf(op)] = currentTransaction.getOperationAtPos(posAtTransaction);
+										
 					posAtTransaction++;
 				}
 			}
 			posAtTransaction = 0;
-		}		
+		}
+		
+		System.out.println("\n\nOrganizei a ordem das operacoes:\n");
+		for(int i=0 ; i<operations.size() ; i++){
+			shuffledOperations[i].printOperation();
+		}
 	}
 }

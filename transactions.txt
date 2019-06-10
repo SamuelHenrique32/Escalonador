@@ -1,5 +1,4 @@
 r0[x] w0[y] r0[s] c0
 w1[x] w1[y] c1
-w2[z] w2[x] c2
-r3[w] w3[i] c3
-r4[s] w4[s] c4
+r2[w] w2[i] c2
+r3[s] w3[s] c3

@@ -46,6 +46,9 @@ public class Historia {
 	
 	//Gera uma historia com base nas transacoes
 	public void createExecutionSequence(ArrayList<Transacao> transactions) {
+		
+		// Limpar operacoes
+		this.operations.clear();
 
 		// Adicionar todas operacoes de todas as transacoes no ArrayList		
 		for (Transacao t : transactions) {

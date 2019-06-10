@@ -191,6 +191,9 @@ public class Escalonador {
 	}
 
 	private void readTransactions() {
+		
+		// Limpa Transacoes armazenadas
+		this.storedTransactions.clear();
 
 		System.out.println("\nDigite Enter para proxima transacao e -1 se todas as transacoes foram informadas");
 
@@ -233,6 +236,9 @@ public class Escalonador {
 	private void readFile() {
 		
 		int currentLine = 0;
+		
+		// Limpa Transacoes armazenadas
+		this.storedTransactions.clear();
 		
 		try {
 			FileReader arq = new FileReader("C:\\Users\\Samuel\\Desktop\\Escalonador\\transactions.txt");

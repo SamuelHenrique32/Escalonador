@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -37,6 +38,18 @@ public class Escalonador {
 	
 	// Objeto Historia gerado pela aplicacao
 	private Historia generatedHistory;
+	
+	// Array de operacoes em espera
+	private ArrayList<Operacao> delayOperations;
+	
+	// Dados nas transacoes
+	private HashSet<Character> data;
+	
+	// Dados com bloqueio exclusivo
+	private ArrayList<String> exclusiveLock;
+	
+	// Dados com bloqueio compartilhado
+	private ArrayList<String> sharedLock;
 
 	// Ler do teclado
 	private Scanner reader;
@@ -51,6 +64,10 @@ public class Escalonador {
 		this.numberOfTransactions = 0;
 		this.informedHistory = new Historia();
 		this.generatedHistory = new Historia();
+		this.delayOperations = new ArrayList<Operacao>();
+		this.data = new HashSet<Character>();
+		this.exclusiveLock = new ArrayList<String>();
+		this.sharedLock = new ArrayList<String>();
 		this.reader = new Scanner(System.in);
 	}
 
@@ -72,6 +89,7 @@ public class Escalonador {
 		System.out.println("4- Mostrar Transacoes Cadastradas");
 		System.out.println("5- Mostrar Transacoes Armazenadas");
 		System.out.println("6- Gerar Historia de Execucao");
+		System.out.println("7- Executar Escalonador");
 		System.out.print("Opcao: ");
 	}
 
@@ -79,7 +97,7 @@ public class Escalonador {
 
 		option = reader.nextLine();
 
-		while (!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4") && !option.equals("5")  && !option.equals("6")) {
+		while (!option.equals("1") && !option.equals("2") && !option.equals("3") && !option.equals("4") && !option.equals("5")  && !option.equals("6")  && !option.equals("7")) {
 			System.out.println("\nOpcao Invalida!");
 			this.showOptions();
 			option = reader.nextLine();
@@ -229,18 +247,36 @@ public class Escalonador {
 				transactionToStore = new Transacao();
 				transactionToStore.criaTransacao(line, currentLine);
 				
+				// Cria dados
+				this.createDataList(line);
+				
 				this.storedTransactions.add(transactionToStore);
 				currentLine++;
 				
 				// lê da segunda até a última linha
 				line = readArq.readLine(); 
 			}
-
+			
 			arq.close();
 		} catch (IOException e) {
 			System.err.printf("Erro na abertura do arquivo: %s.\n", e.getMessage());
 		}
 
-	}	
-	
+	}
+
+	private void createDataList(String line) {
+
+		// Para cada posicao na linha
+		for(int i =0 ; i<line.length() ; i++) {
+			
+			// Adiciona ao hashset
+			if(line.charAt(i) == '[') {
+				System.out.println("* " + line.charAt(i+1));
+				// Nao repetira elementos pois e um hashset
+				this.data.add(line.charAt(i+1));
+			}
+		}
+		
+		
+	}
 }

@@ -204,6 +204,11 @@ public class Escalonador {
 
 				Transacao transactionToCreate = new Transacao();
 				transactionToCreate.criaTransacao(currentTransactionRead, numberOfTransactions);
+				
+				// Adiciona ao hashset
+				// Nao repetira elementos pois e um hashset
+				this.createDataList(currentTransactionRead);
+				
 				this.informedTransactions.add(transactionToCreate);
 				this.numberOfTransactions++;
 			}
@@ -271,7 +276,6 @@ public class Escalonador {
 			
 			// Adiciona ao hashset
 			if(line.charAt(i) == '[') {
-				System.out.println("* " + line.charAt(i+1));
 				// Nao repetira elementos pois e um hashset
 				this.data.add(line.charAt(i+1));
 			}

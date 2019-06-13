@@ -1,4 +1,6 @@
-public class Operacao {
+import java.nio.charset.Charset;
+
+public class Operacao implements Comparable<Operacao>{
 
 	private String operacao;
 	// Transacao a que pertence
@@ -35,12 +37,36 @@ public class Operacao {
 	public void setPosicaoNaTransacao(int posicaoNaTransacao) {
 		this.posicaoNaTransacao = posicaoNaTransacao;
 	}
+	
+	public char getData() {
+		return this.operacao.charAt(3);
+	}
 
 	public void printOperation() {
 		
 		System.out.print(this.operacao + " ");
 		//System.out.println("Transacao: " + this.transacao);
 		//System.out.println("Posicao na Transacao:" + this.posicaoNaTransacao + "\n");		
+	}
+
+	@Override
+	public int compareTo(Operacao outraOperacao) {
+		
+		System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
+
+		if(!this.getOperacao().equals(outraOperacao.getOperacao())){
+			return -1;
+		}
+		
+		if(this.getTransacao() != outraOperacao.getTransacao()) {
+			return -1;
+		}
+		
+		if(this.getPosicaoNaTransacao() != outraOperacao.getPosicaoNaTransacao()) {
+			return -1;
+		}
+		
+		return 0;
 	}
 	
 }

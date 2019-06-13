@@ -46,10 +46,13 @@ public class Escalonador {
 	private HashSet<Character> data;
 	
 	// Dados com bloqueio exclusivo
-	private ArrayList<String> exclusiveLock;
+	private ArrayList<Operacao> exclusiveLock;
 	
 	// Dados com bloqueio compartilhado
-	private ArrayList<String> sharedLock;
+	private ArrayList<Operacao> sharedLock;
+	
+	// Historia final
+	private ArrayList<String> finalHistory;
 
 	// Ler do teclado
 	private Scanner reader;
@@ -66,8 +69,9 @@ public class Escalonador {
 		this.generatedHistory = new Historia();
 		this.delayOperations = new ArrayList<Operacao>();
 		this.data = new HashSet<Character>();
-		this.exclusiveLock = new ArrayList<String>();
-		this.sharedLock = new ArrayList<String>();
+		this.exclusiveLock = new ArrayList<Operacao>();
+		this.sharedLock = new ArrayList<Operacao>();
+		this.finalHistory = new ArrayList<String>();
 		this.reader = new Scanner(System.in);
 	}
 
@@ -132,6 +136,25 @@ public class Escalonador {
 		
 		case "6":
 			this.generateHistory();
+		break;
+		
+		case "7":
+			
+			System.out.println("\n\n################## ESCALONADOR ##################\n");
+			String option = new String();
+			
+			while(!option.equals("1") && !option.equals("2")) {
+				System.out.print("Digite 1 para utilizar a historia cadastrada e 2 para utilizar a historia gerada: ");
+				option = reader.nextLine();
+			}
+			
+			if(option.equals("1")) {
+				// TODO
+			} else {
+				this.scheduler(this.generatedHistory.getShuffledOperations());
+			}
+			
+			
 		break;
 
 		default:
@@ -285,8 +308,110 @@ public class Escalonador {
 				// Nao repetira elementos pois e um hashset
 				this.data.add(line.charAt(i+1));
 			}
+		}		
+	}
+	
+	private void scheduler(Operacao[] operations) {
+		
+				
+		String currentOperation = new String();
+		
+		// Para cada operacao na historia
+		//for(int i=0 ; i<1 ; i++) {
+		for(int i=0 ; i<this.generatedHistory.getOperationsSize() ; i++) {
+			// Operacao atual
+			currentOperation = operations[i].getOperacao();
+			System.out.println("\nAnalisando " + currentOperation + "\n");
+			
+			// Pega operacao
+			switch(currentOperation.charAt(0)) {
+				// Read
+				case 'r':
+					
+					// Verificar se ha bloqueio exclusivo por outra transacao
+					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i])) {
+						
+						System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + currentOperation + " esta em delay\n");
+						
+						// Adicionar para delay
+						this.delayOperations.add(operations[i]);
+						break;
+					}
+					
+					// Se transacao possuir bloqueio exclusivo ou compartilhado sobre dado
+					if(verifyIfIsExclusiveLockedForATransaction(operations[i]) || verifyIfIsSharedLockedForATransaction(operations[i])){
+						
+						System.out.println("Transacao ja possui bloqueio sobre o dado");
+						
+						// Add na historia final
+						finalHistory.add(operations[i].getOperacao());
+						break;
+					}
+					
+					System.out.println("Pedir bloqueio compartilhado");
+					
+					// Pedir bloqueio compartilhado
+					this.sharedLock.add(operations[i]);
+					// Adiciona bloqueio compartilhado na historia final
+					this.finalHistory.add("ls" + operations[i].getTransacao() + "[" + operations[i].getData() + "]");
+					// Adiciona operacao na historia final
+					this.finalHistory.add(operations[i].getOperacao());		
+					
+				break;
+			}			
+		
+			System.out.println("\nHistoria atualizada: ");
+			showFinalHistory();
+			
+			String breakScheduler = reader.nextLine();
+		}		
+	}
+	
+	// Retorna se ha bloqueio exclusivo para transacao especifica 
+	// Recebe operacao a verificar
+	private boolean verifyIfIsExclusiveLockedForATransaction(Operacao operation) {
+		
+		//System.out.println(operation.getData());
+		
+		// procura no array de operacoes que possuem bloqueio exclusivo
+		for (Operacao op : exclusiveLock) {
+			if(op.compareTo(operation) == 0) {
+				return true;
+			}
 		}
+		return false;
+	}
+	
+	// Verifica se o dado possui bloqueio exclusivo por outra transacao
+	private boolean verifyIfIsExclusiveLockedForOtherTransaction(Operacao operation) {
 		
+		for (Operacao op : exclusiveLock) {
+			// Se o dado for o mesmo e a transacao for diferente
+			if(op.getData() == operation.getData() && op.getTransacao() != operation.getTransacao()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// Retorna se ha bloqueio compartilhado para transacao especifica 
+	// Recebe operacao a verificar
+	private boolean verifyIfIsSharedLockedForATransaction(Operacao operation) {
+			
+		// procura no array de operacoes que possuem bloqueio compartilhado
+		for (Operacao op : sharedLock) {
+			if(op.compareTo(operation) == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void showFinalHistory() {
 		
+		for (String s : finalHistory) {
+			System.out.print(s + " ");
+		}
 	}
 }
+

@@ -18,6 +18,14 @@ public class Historia {
 		this.shuffledOperations = new Operacao[Escalonador.maxHistorySize];
 		this.historySplited = new String[Escalonador.maxHistorySize];
 	}
+	
+	public Operacao[] getShuffledOperations() {
+		return shuffledOperations;
+	}
+	
+	public int getOperationsSize() {
+		return this.operations.size();
+	}
 
 	// Criar quando informada historia na opcao 2 do menu
 	public void createInitialHistory(String historyRead) {

@@ -1,2 +1,2 @@
 r0[p] w0[p] r0[p] c0
-r1[z] r1[w] w1[z] r1[z] c1
+r1[z] w1[z] r1[z] c1

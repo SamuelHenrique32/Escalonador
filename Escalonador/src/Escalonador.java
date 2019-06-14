@@ -363,7 +363,8 @@ public class Escalonador {
 			System.out.println("\nHistoria atualizada: ");
 			showFinalHistory();
 			
-			String breakScheduler = reader.nextLine();
+			System.out.println("\n\nPressione Enter para continuar...");
+			String pauseScheduler = reader.nextLine();
 		}		
 	}
 	

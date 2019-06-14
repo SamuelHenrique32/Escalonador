@@ -52,7 +52,7 @@ public class Operacao implements Comparable<Operacao>{
 	@Override
 	public int compareTo(Operacao outraOperacao) {
 		
-		System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
+		//System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
 
 		if(!this.getOperacao().equals(outraOperacao.getOperacao())){
 			return -1;
@@ -62,9 +62,9 @@ public class Operacao implements Comparable<Operacao>{
 			return -1;
 		}
 		
-		if(this.getPosicaoNaTransacao() != outraOperacao.getPosicaoNaTransacao()) {
-			return -1;
-		}
+//		if(this.getPosicaoNaTransacao() != outraOperacao.getPosicaoNaTransacao()) {
+//			return -1;
+//		}
 		
 		return 0;
 	}

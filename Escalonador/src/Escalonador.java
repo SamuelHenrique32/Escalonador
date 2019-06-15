@@ -190,12 +190,13 @@ public class Escalonador {
 	private void showOptionsToGenerateHistory() {
 		System.out.println("1- Transacoes Informadas pelo Usuario");
 		System.out.println("2- Transacoes Armazenadas");
-		System.out.print("Escolha uma opcao:");
+		System.out.print("Escolha uma opcao: ");
 	}
 
 	private void showTransactionsStored() {
 
 		System.out.println("\nTransacoes Armazenadas:\n");
+		
 
 		for (Transacao t : storedTransactions) {
 			t.printTransacao();
@@ -358,6 +359,49 @@ public class Escalonador {
 					this.finalHistory.add(operations[i].getOperacao());		
 					
 				break;
+				
+				//Write
+				case 'w':
+					
+					// Verificar se ha bloqueio exclusivo ou compartilhado por outra transacao
+					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i]) || verifyIfIsSharedLockedForOtherTransaction(operations[i])) {
+						
+						System.out.println("Ha outra transacao com bloqueio, operacao " + currentOperation + " esta em delay\n");
+						
+						// Adicionar para delay
+						this.delayOperations.add(operations[i]);
+						break;
+					}
+					
+					// Se operacao possuir bloqueio exclusivo sobre dado
+					if(verifyIfIsExclusiveLockedForATransaction(operations[i])) {
+						
+						System.out.println("Transacao ja possui bloqueio exclusivo sobre o dado");
+						
+						// Add na historia final
+						finalHistory.add(operations[i].getOperacao());
+						break;
+					}
+					
+					// Se transacao possuir bloqueio compartilhado sobre dado
+					if(verifyIfIsSharedLockedForATransaction(operations[i])) {
+						
+						// Upgrade de bloqueio compartilhado para exclusivo
+						System.out.println("Transacao ja possui bloqueio compartilhado, upgrade para bloqueio exclusivo");						
+						// Remove bloqueio compartilhado da transacao sobre dado
+						this.removeFromSharedLock(operations[i]);
+					}
+					
+					System.out.println("\nPedir bloqueio exclusivo");
+					
+					// Pedir bloqueio exclusivo
+					this.exclusiveLock.add(operations[i]);					
+					// Adiciona bloqueio exclusivo na historia final
+					this.finalHistory.add("lx" + operations[i].getTransacao() + "[" + operations[i].getData() + "]");
+					// Adiciona operacao na historia final
+					this.finalHistory.add(operations[i].getOperacao());
+										
+				break;
 			}			
 		
 			System.out.println("\nHistoria atualizada: ");
@@ -368,6 +412,21 @@ public class Escalonador {
 		}		
 	}
 	
+	private void removeFromSharedLock(Operacao operation) {
+		
+		// Comparar transacao e o dado para efetuar remocao
+		// Verifica todas as operacoes armazenadas em sharedLock
+		for (Operacao op : sharedLock) {
+
+			// Mesma transacao e mesmo dado
+			if(op.getTransacao() == operation.getTransacao() && op.getData() == operation.getData()) {
+				System.out.println("\nRemovi bloqueio compartilhado da transacao " + op.getTransacao() + " sobre o dado " + op.getData());
+				sharedLock.remove(op);
+				break;
+			}
+		}
+	}
+
 	// Retorna se ha bloqueio exclusivo para transacao especifica 
 	// Recebe operacao a verificar
 	private boolean verifyIfIsExclusiveLockedForATransaction(Operacao operation) {
@@ -376,7 +435,7 @@ public class Escalonador {
 		
 		// procura no array de operacoes que possuem bloqueio exclusivo
 		for (Operacao op : exclusiveLock) {
-			if(op.compareTo(operation) == 0) {
+			if(op.compareToUpgradeLock(operation) == 0) {
 				return true;
 			}
 		}
@@ -401,7 +460,19 @@ public class Escalonador {
 			
 		// procura no array de operacoes que possuem bloqueio compartilhado
 		for (Operacao op : sharedLock) {
-			if(op.compareTo(operation) == 0) {
+			if(op.compareToUpgradeLock(operation) == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// Verifica se o dado possui bloqueio compartilhado por outra transacao
+	private boolean verifyIfIsSharedLockedForOtherTransaction(Operacao operation) {
+		
+		for (Operacao op : sharedLock) {
+			// Se o dado for o mesmo e a transacao for diferente
+			if(op.getData() == operation.getData() && op.getTransacao() != operation.getTransacao()) {
 				return true;
 			}
 		}

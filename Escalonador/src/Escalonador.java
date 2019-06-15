@@ -53,6 +53,9 @@ public class Escalonador {
 	
 	// Historia final
 	private ArrayList<String> finalHistory;
+	
+	// Operacoes a serem removidas ao receber commit
+	private ArrayList<Operacao> operationsToRemove;
 
 	// Ler do teclado
 	private Scanner reader;
@@ -72,6 +75,7 @@ public class Escalonador {
 		this.exclusiveLock = new ArrayList<Operacao>();
 		this.sharedLock = new ArrayList<Operacao>();
 		this.finalHistory = new ArrayList<String>();
+		this.operationsToRemove = new ArrayList<Operacao>();
 		this.reader = new Scanner(System.in);
 	}
 
@@ -360,7 +364,7 @@ public class Escalonador {
 					
 				break;
 				
-				//Write
+				// Write
 				case 'w':
 					
 					// Verificar se ha bloqueio exclusivo ou compartilhado por outra transacao
@@ -402,6 +406,29 @@ public class Escalonador {
 					this.finalHistory.add(operations[i].getOperacao());
 										
 				break;
+				
+				// Commit
+				case 'c':
+					
+					// Verificar operacoes em delay da transacao
+					for (Operacao op : delayOperations) {
+						
+						// Se encontrar alguma operacao da transacao em delay
+						if(op.getTransacao() == operations[i].getTransacao()) {
+							
+							System.out.println("Ha operacoes da transacao " + op.getTransacao() + " na lista de espera!");
+							System.out.println("Nao e possivel realizar o commit nesse momento");
+							System.out.println(operations[i].getOperacao() + " adicionado para delay");
+							break;
+						}
+					}
+					
+					// Se nao houver operacoes em delay
+					this.finalHistory.add(operations[i].getOperacao());
+					removeExclusiveLocksAfterCommit(operations[i]);
+					removeSharedLocksAfterCommit(operations[i]);					
+
+				break;
 			}			
 		
 			System.out.println("\nHistoria atualizada: ");
@@ -410,6 +437,49 @@ public class Escalonador {
 			System.out.println("\n\nPressione Enter para continuar...");
 			String pauseScheduler = reader.nextLine();
 		}		
+	}
+
+	private void removeSharedLocksAfterCommit(Operacao operation) {
+
+		// Limpar array
+		operationsToRemove.clear();		
+
+		// Liberar bloqueios compartilhados
+		for (Operacao op : sharedLock) {			
+			if(op.getTransacao() == operation.getTransacao()) {
+				// Evitar modification exception
+				operationsToRemove.add(op);
+			}
+		}
+		
+		for (Operacao op : operationsToRemove) {
+			// Remove do bloqueio compartilhado
+			sharedLock.remove(op);
+			// Adiciona remocao na historia final
+			this.finalHistory.add("us" + op.getTransacao() + "[" + op.getData() + "]");
+		}
+	}
+
+	private void removeExclusiveLocksAfterCommit(Operacao operation) {
+		
+		// Limpar array
+		operationsToRemove.clear();		
+		
+		// Liberar bloqueios exclusivos
+		for (Operacao op : exclusiveLock) {			
+			if(op.getTransacao() == operation.getTransacao()) {
+				
+				// Evitar modification exception
+				operationsToRemove.add(op);
+			}
+		}
+
+		for (Operacao op : operationsToRemove) {
+			// Remove do bloqueio exclusivo
+			exclusiveLock.remove(op);
+			// Adiciona remocao na historia final
+			this.finalHistory.add("ux" + op.getTransacao() + "[" + op.getData() + "]");
+		}
 	}
 	
 	private void removeFromSharedLock(Operacao operation) {

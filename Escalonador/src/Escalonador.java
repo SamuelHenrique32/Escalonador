@@ -318,17 +318,13 @@ public class Escalonador {
 	}
 	
 	private void scheduler(Operacao[] operations, int iterationLimit) {
-		
-				
-		String currentOperation = new String();
-		
+	
 		// Para cada operacao na historia
 		for(int i=0 ; i<iterationLimit ; i++) {
-			// Operacao atual
-			currentOperation = operations[i].getOperacao();
-			System.out.println("\n\n\nAnalisando " + currentOperation + "\n");
+
+			System.out.println("\n\n\nAnalisando " + operations[i].getOperacao() + "\n");
 			
-			if(this.verifyIfIsInDelay(currentOperation)) {
+			if(this.verifyIfIsInDelay(operations[i].getOperacao())) {
 				System.out.println("A operacao " + operations[i].getTransacao() + " possui alguma operacao em delay!");
 				System.out.println("Adicionada a operacao " + operations[i].getOperacao() + " na lista de delay\n");
 				this.delayOperations.add(operations[i]);
@@ -340,110 +336,8 @@ public class Escalonador {
 				continue;
 			}
 			
-			showDelayedOperations();
-	
-			// Pega operacao
-			switch(currentOperation.charAt(0)) {
-				// Read
-				case 'r':
-					
-					// Verificar se ha bloqueio exclusivo por outra transacao
-					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i])) {
-						
-						System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + currentOperation + " adicionada na lista de delay");
-						
-						// Adicionar para delay
-						this.delayOperations.add(operations[i]);
-						break;
-					}
-					
-					// Se transacao possuir bloqueio exclusivo ou compartilhado sobre dado
-					if(verifyIfIsExclusiveLockedForATransaction(operations[i]) || verifyIfIsSharedLockedForATransaction(operations[i])){
-						
-						System.out.println("Transacao ja possui bloqueio sobre o dado");
-						
-						// Add na historia final
-						finalHistory.add(operations[i].getOperacao());
-						break;
-					}
-					
-					System.out.println("Pedir bloqueio compartilhado");
-					
-					// Pedir bloqueio compartilhado
-					this.sharedLock.add(operations[i]);
-					// Adiciona bloqueio compartilhado na historia final
-					this.finalHistory.add("ls" + operations[i].getTransacao() + "[" + operations[i].getData() + "]");
-					// Adiciona operacao na historia final
-					this.finalHistory.add(operations[i].getOperacao());		
-					
-				break;
-				
-				// Write
-				case 'w':
-					
-					// Verificar se ha bloqueio exclusivo ou compartilhado por outra transacao
-					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i]) || verifyIfIsSharedLockedForOtherTransaction(operations[i])) {
-						
-						System.out.println("Ha outra transacao com bloqueio, operacao " + currentOperation + " adicionada na lista de delay");
-						
-						// Adicionar para delay
-						this.delayOperations.add(operations[i]);
-						break;
-					}
-					
-					// Se operacao possuir bloqueio exclusivo sobre dado
-					if(verifyIfIsExclusiveLockedForATransaction(operations[i])) {
-						
-						System.out.println("Transacao ja possui bloqueio exclusivo sobre o dado");
-						
-						// Add na historia final
-						finalHistory.add(operations[i].getOperacao());
-						break;
-					}
-					
-					// Se transacao possuir bloqueio compartilhado sobre dado
-					if(verifyIfIsSharedLockedForATransaction(operations[i])) {
-						
-						// Upgrade de bloqueio compartilhado para exclusivo
-						System.out.println("Transacao ja possui bloqueio compartilhado, upgrade para bloqueio exclusivo");						
-						// Remove bloqueio compartilhado da transacao sobre dado
-						this.removeFromSharedLock(operations[i]);
-					}
-					
-					System.out.println("\nPedir bloqueio exclusivo");
-					
-					// Pedir bloqueio exclusivo
-					this.exclusiveLock.add(operations[i]);					
-					// Adiciona bloqueio exclusivo na historia final
-					this.finalHistory.add("lx" + operations[i].getTransacao() + "[" + operations[i].getData() + "]");
-					// Adiciona operacao na historia final
-					this.finalHistory.add(operations[i].getOperacao());
-										
-				break;
-				
-				// Commit
-				case 'c':
-					
-					// Verificar operacoes em delay da transacao
-					for (Operacao op : delayOperations) {
-						
-						// Se encontrar alguma operacao da transacao em delay
-						if(op.getTransacao() == operations[i].getTransacao()) {
-							
-							System.out.println("Ha operacoes da transacao " + op.getTransacao() + " na lista de espera!");
-							System.out.println("Nao e possivel realizar o commit nesse momento");
-							System.out.println(operations[i].getOperacao() + " adicionado para delay");
-							break;
-						}
-					}
-					
-					// Se nao houver operacoes em delay
-					this.finalHistory.add(operations[i].getOperacao());
-					removeExclusiveLocksAfterCommit(operations[i]);
-					removeSharedLocksAfterCommit(operations[i]);					
-
-				break;
-			}			
+			showDelayedOperations();	
+			schedulerHandleCurrentOperation(operations[i]);			
 		
 			System.out.println("\n\nHistoria atualizada:");
 			showFinalHistory();
@@ -451,6 +345,112 @@ public class Escalonador {
 			System.out.println("\n\nPressione Enter para continuar...");
 			String pauseScheduler = reader.nextLine();
 		}		
+	}
+
+	private void schedulerHandleCurrentOperation(Operacao operation) {
+		
+		// Pega operacao
+		switch(operation.getOperacao().charAt(0)) {
+			// Read
+			case 'r':
+				
+				// Verificar se ha bloqueio exclusivo por outra transacao
+				if(verifyIfIsExclusiveLockedForOtherTransaction(operation)) {
+					
+					System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + operation.getOperacao() + " adicionada na lista de delay");
+					
+					// Adicionar para delay
+					this.delayOperations.add(operation);
+					break;
+				}
+				
+				// Se transacao possuir bloqueio exclusivo ou compartilhado sobre dado
+				if(verifyIfIsExclusiveLockedForATransaction(operation) || verifyIfIsSharedLockedForATransaction(operation)){
+					
+					System.out.println("Transacao ja possui bloqueio sobre o dado");
+					
+					// Add na historia final
+					finalHistory.add(operation.getOperacao());
+					break;
+				}
+				
+				System.out.println("Pedir bloqueio compartilhado");
+				
+				// Pedir bloqueio compartilhado
+				this.sharedLock.add(operation);
+				// Adiciona bloqueio compartilhado na historia final
+				this.finalHistory.add("ls" + operation.getTransacao() + "[" + operation.getData() + "]");
+				// Adiciona operacao na historia final
+				this.finalHistory.add(operation.getOperacao());		
+				
+			break;
+			
+			// Write
+			case 'w':
+				
+				// Verificar se ha bloqueio exclusivo ou compartilhado por outra transacao
+				if(verifyIfIsExclusiveLockedForOtherTransaction(operation) || verifyIfIsSharedLockedForOtherTransaction(operation)) {
+					
+					System.out.println("Ha outra transacao com bloqueio, operacao " + operation.getOperacao() + " adicionada na lista de delay");
+					
+					// Adicionar para delay
+					this.delayOperations.add(operation);
+					break;
+				}
+				
+				// Se operacao possuir bloqueio exclusivo sobre dado
+				if(verifyIfIsExclusiveLockedForATransaction(operation)) {
+					
+					System.out.println("Transacao ja possui bloqueio exclusivo sobre o dado");
+					
+					// Add na historia final
+					finalHistory.add(operation.getOperacao());
+					break;
+				}
+				
+				// Se transacao possuir bloqueio compartilhado sobre dado
+				if(verifyIfIsSharedLockedForATransaction(operation)) {
+					
+					// Upgrade de bloqueio compartilhado para exclusivo
+					System.out.println("Transacao ja possui bloqueio compartilhado, upgrade para bloqueio exclusivo");						
+					// Remove bloqueio compartilhado da transacao sobre dado
+					this.removeFromSharedLock(operation);
+				}
+				
+				System.out.println("\nPedir bloqueio exclusivo");
+				
+				// Pedir bloqueio exclusivo
+				this.exclusiveLock.add(operation);					
+				// Adiciona bloqueio exclusivo na historia final
+				this.finalHistory.add("lx" + operation.getTransacao() + "[" + operation.getData() + "]");
+				// Adiciona operacao na historia final
+				this.finalHistory.add(operation.getOperacao());
+									
+			break;
+			
+			// Commit
+			case 'c':
+				
+				// Verificar operacoes em delay da transacao
+				for (Operacao op : delayOperations) {
+					
+					// Se encontrar alguma operacao da transacao em delay
+					if(op.getTransacao() == operation.getTransacao()) {
+						
+						System.out.println("Ha operacoes da transacao " + op.getTransacao() + " na lista de espera!");
+						System.out.println("Nao e possivel realizar o commit nesse momento");
+						System.out.println(operation.getOperacao() + " adicionado para delay");
+						break;
+					}
+				}
+				
+				// Se nao houver operacoes em delay
+				this.finalHistory.add(operation.getOperacao());
+				removeExclusiveLocksAfterCommit(operation);
+				removeSharedLocksAfterCommit(operation);					
+
+			break;
+		}
 	}
 
 	private void showDelayedOperations() {

@@ -52,7 +52,7 @@ public class Operacao implements Comparable<Operacao>{
 	@Override
 	public int compareTo(Operacao outraOperacao) {
 		
-		System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
+		//System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
 
 		if(!this.getOperacao().equals(outraOperacao.getOperacao())){
 			return -1;
@@ -72,7 +72,7 @@ public class Operacao implements Comparable<Operacao>{
 	// Utilizado para upgrade de transacoes em que necessita saber apenas se a transacao e o dado sao os mesmos
 	public int compareToUpgradeLock(Operacao outraOperacao) {
 		
-		System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
+		//System.out.println("Comparar " + this.getOperacao() + " com " + outraOperacao.getOperacao() + "\n");
 
 		if(this.getTransacao() != outraOperacao.getTransacao()) {
 			return -1;

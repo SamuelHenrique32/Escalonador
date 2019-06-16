@@ -326,8 +326,22 @@ public class Escalonador {
 		for(int i=0 ; i<iterationLimit ; i++) {
 			// Operacao atual
 			currentOperation = operations[i].getOperacao();
-			System.out.println("\nAnalisando " + currentOperation + "\n");
+			System.out.println("\n\n\nAnalisando " + currentOperation + "\n");
 			
+			if(this.verifyIfIsInDelay(currentOperation)) {
+				System.out.println("A operacao " + operations[i].getTransacao() + " possui alguma operacao em delay!");
+				System.out.println("Adicionada a operacao " + operations[i].getOperacao() + " na lista de delay\n");
+				this.delayOperations.add(operations[i]);
+				showDelayedOperations();
+				System.out.println("\n\nHistoria atualizada:");
+				showFinalHistory();
+				System.out.println("\n\nPressione Enter para continuar...");
+				String pauseScheduler = reader.nextLine();
+				continue;
+			}
+			
+			showDelayedOperations();
+	
 			// Pega operacao
 			switch(currentOperation.charAt(0)) {
 				// Read
@@ -336,7 +350,7 @@ public class Escalonador {
 					// Verificar se ha bloqueio exclusivo por outra transacao
 					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i])) {
 						
-						System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + currentOperation + " esta em delay\n");
+						System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + currentOperation + " adicionada na lista de delay");
 						
 						// Adicionar para delay
 						this.delayOperations.add(operations[i]);
@@ -370,7 +384,7 @@ public class Escalonador {
 					// Verificar se ha bloqueio exclusivo ou compartilhado por outra transacao
 					if(verifyIfIsExclusiveLockedForOtherTransaction(operations[i]) || verifyIfIsSharedLockedForOtherTransaction(operations[i])) {
 						
-						System.out.println("Ha outra transacao com bloqueio, operacao " + currentOperation + " esta em delay\n");
+						System.out.println("Ha outra transacao com bloqueio, operacao " + currentOperation + " adicionada na lista de delay");
 						
 						// Adicionar para delay
 						this.delayOperations.add(operations[i]);
@@ -431,12 +445,36 @@ public class Escalonador {
 				break;
 			}			
 		
-			System.out.println("\nHistoria atualizada: ");
+			System.out.println("\n\nHistoria atualizada:");
 			showFinalHistory();
 			
 			System.out.println("\n\nPressione Enter para continuar...");
 			String pauseScheduler = reader.nextLine();
 		}		
+	}
+
+	private void showDelayedOperations() {
+		// Mostra operacoes em delay
+		if(delayOperations.isEmpty()) {
+			System.out.println("Lista de operacoes em delay: vazia\n");
+		} else {
+			System.out.print("Lista de operacoes em delay: ");
+			for (Operacao op : delayOperations) {
+				op.printOperation();	
+			}
+		}
+	}
+
+	private boolean verifyIfIsInDelay(String currentOperation) {
+
+		// Para cada operacao em delay
+		for (Operacao op : delayOperations) {
+			// Se for a mesma transacao
+			if(op.getTransacao() == currentOperation.charAt(1) -'0') {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void removeSharedLocksAfterCommit(Operacao operation) {

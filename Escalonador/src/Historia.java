@@ -27,20 +27,34 @@ public class Historia {
 		return this.operations.size();
 	}
 
-	// Criar quando informada historia na opcao 2 do menu
+	// Criar quando informada historia na opcao do menu
 	public void createInitialHistory(String historyRead) {
+		
+		this.operations.clear();
 		
 		// String com split
 		this.historySplited = historyRead.split(" ");
-		
+  
 		// Posicoes preenchidas: historySplited.length-1
 		for(int i=0 ; i< this.historySplited.length ; i++) {
 
-			//para cada posicao, cria operacao e adiciona ao array de operacoes
-			operations.add(new Operacao(this.historySplited[i], 0, 0));
-			
+		//para cada posicao, cria operacao e adiciona ao array de operacoes
+		operations.add(new Operacao(this.historySplited[i], this.historySplited[i].charAt(1) - '0', 0));
+   
 		}
-	}	
+	}
+	
+	public void copyToShuffledOperations() {
+		
+		this.shuffledOperations = new Operacao[Escalonador.maxHistorySize];
+		
+		int i=0;
+		
+		for (Operacao op : operations) {
+			shuffledOperations[i] = op;
+			i++;
+		}
+	}
 
 	// Metodo toString modificado
 	public void printHistoria() {

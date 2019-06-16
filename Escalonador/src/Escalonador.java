@@ -144,6 +144,7 @@ public class Escalonador {
 		
 		case "7":
 			
+			this.finalHistory = new ArrayList<String>();
 			System.out.println("\n\n################## ESCALONADOR ##################\n");
 			String option = new String();
 			
@@ -153,11 +154,12 @@ public class Escalonador {
 			}
 			
 			if(option.equals("1")) {
-				// TODO
+
+				this.informedHistory.copyToShuffledOperations();
+				this.scheduler(this.informedHistory.getShuffledOperations(), this.informedHistory.getOperationsSize());
 			} else {
-				this.scheduler(this.generatedHistory.getShuffledOperations());
-			}
-			
+				this.scheduler(this.generatedHistory.getShuffledOperations(), this.generatedHistory.getOperationsSize());
+			}			
 			
 		break;
 
@@ -251,7 +253,6 @@ public class Escalonador {
 
 	private void readHistory() {
 
-		System.out.println("\nOBS: As transacoes constituintes ja necessitam estar cadastradas");
 		System.out.print("Digite a historia: ");
 
 		// String lida
@@ -316,14 +317,13 @@ public class Escalonador {
 		}		
 	}
 	
-	private void scheduler(Operacao[] operations) {
+	private void scheduler(Operacao[] operations, int iterationLimit) {
 		
 				
 		String currentOperation = new String();
 		
 		// Para cada operacao na historia
-		//for(int i=0 ; i<1 ; i++) {
-		for(int i=0 ; i<this.generatedHistory.getOperationsSize() ; i++) {
+		for(int i=0 ; i<iterationLimit ; i++) {
 			// Operacao atual
 			currentOperation = operations[i].getOperacao();
 			System.out.println("\nAnalisando " + currentOperation + "\n");

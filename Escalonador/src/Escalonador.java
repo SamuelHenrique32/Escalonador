@@ -69,6 +69,9 @@ public class Escalonador {
 	// Operacoes a serem refeitas em caso de deadlock
 	private Operacao[] operationsToDoAgain;
 	
+	// Quantidade de operacoes a serem refeitas em caso de deadlock
+	private int quantityOfOperationsToDoAgain;
+	
 	// Ler do teclado
 	private Scanner reader;
 
@@ -92,6 +95,7 @@ public class Escalonador {
 		this.operationsToRemoveAfterDeadLock = new ArrayList<Operacao>();
 		this.operationsToRemoveFromFinalHistoryAfterDeadLock = new ArrayList<String>();
 		this.operationsToDoAgain = new Operacao[maxTransactionLength];
+		this.quantityOfOperationsToDoAgain = 0;
 		this.reader = new Scanner(System.in);
 	}
 
@@ -341,6 +345,16 @@ public class Escalonador {
 			transactions.add(operations[j].getTransacao());
 		}
 					
+		schedulerIterate(operations, iterationLimit);
+		
+		// Chegou no final da historia inicial, verificar se ha operacoes em bloqueio
+		// Enquanto houver deadlock, tenta elimina-lo		
+		while(verifyIfFoundDeadlock(operations, iterationLimit)) {
+			schedulerIterate(operationsToDoAgain, this.quantityOfOperationsToDoAgain);
+		}
+	}
+
+	private void schedulerIterate(Operacao[] operations, int iterationLimit) {
 		// Para cada operacao na historia
 		for(int i=0 ; i<iterationLimit ; i++) {
 
@@ -374,13 +388,10 @@ public class Escalonador {
 			
 			System.out.println("\n\nPressione Enter para continuar...");
 			String pauseScheduler = reader.nextLine();
-		}		
-		
-		// Chegou no final da historia inicial, verificar se ha operacoes em bloqueio
-		verifyIfFoundDeadlock(operations, iterationLimit);
+		}
 	}
 
-	private void verifyIfFoundDeadlock(Operacao[] operations, int iterationLimit) {
+	private boolean verifyIfFoundDeadlock(Operacao[] operations, int iterationLimit) {
 		
 		int transactionToAbort = 0;
 		
@@ -425,11 +436,15 @@ public class Escalonador {
 					index++;
 				}
 			}
+			this.quantityOfOperationsToDoAgain = index;
 			System.out.print("\nOperacoes a serem refeitas: ");
 			for(int i=0 ; i<index ; i++) {
 				operationsToDoAgain[i].printOperation();
 			}
+			System.out.println("\n");
+			return true;
 		}
+		return false;
 	}
 
 	private void printDelayedOperations(int transactionToAbort) {
@@ -694,8 +709,8 @@ public class Escalonador {
 				// Verificar operacoes em delay da transacao
 				for (Operacao op : delayOperations) {
 					
-					// Se encontrar alguma operacao da transacao em delay
-					if(op.getTransacao() == operation.getTransacao()) {
+					// Se encontrar alguma operacao da transacao em delay e nao for commit
+					if(op.getTransacao() == operation.getTransacao() && op.getOperacao().charAt(0) != 'c') {
 						
 						// Nada a fazer
 						return false;

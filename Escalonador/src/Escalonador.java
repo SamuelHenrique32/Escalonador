@@ -59,7 +59,13 @@ public class Escalonador {
 	
 	// Operacoes a serem removidas ao receber commit
 	private ArrayList<Operacao> operationsToRemove;
-
+	
+	// Operacoes a serem removidas apos ocorrer deadlock
+	private ArrayList<Operacao> operationsToRemoveAfterDeadLock;
+		
+	// Operacoes a serem removidas da historia final apos ocorrer deadlock
+	private ArrayList<String> operationsToRemoveFromFinalHistoryAfterDeadLock;
+	
 	// Ler do teclado
 	private Scanner reader;
 
@@ -80,6 +86,8 @@ public class Escalonador {
 		this.sharedLock = new ArrayList<Operacao>();
 		this.finalHistory = new ArrayList<String>();
 		this.operationsToRemove = new ArrayList<Operacao>();
+		this.operationsToRemoveAfterDeadLock = new ArrayList<Operacao>();
+		this.operationsToRemoveFromFinalHistoryAfterDeadLock = new ArrayList<String>();
 		this.reader = new Scanner(System.in);
 	}
 
@@ -363,6 +371,111 @@ public class Escalonador {
 			System.out.println("\n\nPressione Enter para continuar...");
 			String pauseScheduler = reader.nextLine();
 		}		
+		
+		// Chegou no final da historia inicial, verificar se ha operacoes em bloqueio
+		verifyIfFoundDeadlock(operations);
+	}
+
+	private void verifyIfFoundDeadlock(Operacao[] operations) {
+		
+		int transactionToAbort = 0;
+		
+		// Se alguma das listas de bloqueios nao estiverem vazias
+		if(!exclusiveLock.isEmpty() || !sharedLock.isEmpty()) {
+			
+			System.out.println("\nDEADLOCK!\n");			
+			System.out.println("Escolhida a transacao " + operations[0].getTransacao() + " como vitima!");
+			transactionToAbort =  operations[0].getTransacao();
+			System.out.println("Abortando transacao...\n");
+			
+			System.out.print("Lista de operacoes em delay antes de abortar: ");			
+			printDelayedOperations(transactionToAbort);
+			removeDelayedOperations();
+			System.out.print("\n\nLista de operacoes em delay apos abortar: ");
+			printDelayedOperations(transactionToAbort);
+			
+			System.out.print("\n\nLista de operacoes em bloqueio compartilhado antes de abortar: ");
+			printSharedLock(transactionToAbort);
+			removeSharedLock();
+			System.out.print("\n\nLista de operacoes em bloqueio compartilhado apos abortar: ");
+			printSharedLock(transactionToAbort);
+			
+			System.out.print("\n\nLista de operacoes em bloqueio exclusivo antes de abortar: ");
+			printExclusiveLock(transactionToAbort);
+			removeExclusiveLock();
+			System.out.print("\n\nLista de operacoes em bloqueio exclusivo apos abortar: ");
+			printExclusiveLock(transactionToAbort);
+			
+			System.out.print("\n\nHistoria final antes de abortar: ");
+			printFinalHistory(transactionToAbort);
+			removeFinalHistory();
+			System.out.print("\n\nHistoria final apos abortar: ");
+			printFinalHistory(transactionToAbort);
+		}
+	}
+
+	private void printDelayedOperations(int transactionToAbort) {
+		operationsToRemoveAfterDeadLock.clear();
+		for (Operacao op : delayOperations) {
+			op.printOperation();
+			if(op.getTransacao() == transactionToAbort) {
+				operationsToRemoveAfterDeadLock.add(op);	
+			}			
+		}
+	}
+
+	private void removeDelayedOperations() {
+		for (Operacao op : operationsToRemoveAfterDeadLock) {
+			delayOperations.remove(op);
+		}
+	}
+	
+	private void printSharedLock(int transactionToAbort) {
+		operationsToRemoveAfterDeadLock.clear();
+		for (Operacao op : sharedLock) {
+			op.printOperation();
+			if(op.getTransacao() == transactionToAbort) {
+				operationsToRemoveAfterDeadLock.add(op);	
+			}			
+		}
+	}
+	
+	private void removeSharedLock() {
+		for (Operacao op : operationsToRemoveAfterDeadLock) {
+			sharedLock.remove(op);
+		}
+	}
+
+	private void printExclusiveLock(int transactionToAbort) {
+		operationsToRemoveAfterDeadLock.clear();
+		for (Operacao op : exclusiveLock) {
+			op.printOperation();
+			if(op.getTransacao() == transactionToAbort) {
+				operationsToRemoveAfterDeadLock.add(op);	
+			}							
+		}
+	}
+	
+	private void removeExclusiveLock() {
+		for (Operacao op : operationsToRemoveAfterDeadLock) {
+			exclusiveLock.remove(op);
+		}
+	}
+	
+	private void printFinalHistory(int transactionToAbort) {
+		operationsToRemoveFromFinalHistoryAfterDeadLock.clear();
+		for (String s : finalHistory) {
+			System.out.print(s + " ");
+			if((s.charAt(1) - '0') == transactionToAbort || (s.charAt(2) - '0') == transactionToAbort) {
+				operationsToRemoveFromFinalHistoryAfterDeadLock.add(s);	
+			}			
+		}
+	}
+	
+	private void removeFinalHistory() {
+		for (String s : operationsToRemoveFromFinalHistoryAfterDeadLock) {
+			finalHistory.remove(s);
+		}
 	}
 
 	private void schedulerHandleCurrentOperation(Operacao operation) {
@@ -375,7 +488,7 @@ public class Escalonador {
 				// Verificar se ha bloqueio exclusivo por outra transacao
 				if(verifyIfIsExclusiveLockedForOtherTransaction(operation)) {
 					
-					System.out.println("Ha outra transacao com bloqueio exclusivo, operacao " + operation.getOperacao() + " adicionada na lista de delay");
+					System.out.println("\n\nHa outra transacao com bloqueio exclusivo, operacao " + operation.getOperacao() + " adicionada na lista de delay");
 					
 					// Adicionar para delay
 					this.delayOperations.add(operation);
@@ -590,7 +703,7 @@ public class Escalonador {
 		for (Integer transactionNro : transactions) {
 			for (Operacao op : delayOperations) {
 				if(op.getTransacao() == transactionNro) {
-					System.out.println("\nEncontrei " + op.getOperacao() + "\n");
+					//System.out.println("\nEncontrei " + op.getOperacao() + "\n");
 					// Se retornar falso, vai verificar proxima transacao
 					if(schedulerHandleDelayedOperation(op)) {
 						System.out.println("\nA operacao " + op.getOperacao() + " foi removida do delay\n");

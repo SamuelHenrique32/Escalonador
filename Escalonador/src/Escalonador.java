@@ -8,10 +8,10 @@ import java.util.Scanner;
 
 public class Escalonador {
 
-	// tamanho maximo de uma historia para leitura
+	// Tamanho maximo de uma historia para leitura
 	protected static final int maxHistorySize = 100;
 
-	// tamanho maximo de uma transacao
+	// Tamanho maximo de uma transacao
 	private static final int maxTransactionLength = 100;
 
 	// Opcao do menu, String para nao dar problema para ler outros dados depois de
@@ -66,6 +66,9 @@ public class Escalonador {
 	// Operacoes a serem removidas da historia final apos ocorrer deadlock
 	private ArrayList<String> operationsToRemoveFromFinalHistoryAfterDeadLock;
 	
+	// Operacoes a serem refeitas em caso de deadlock
+	private Operacao[] operationsToDoAgain;
+	
 	// Ler do teclado
 	private Scanner reader;
 
@@ -88,6 +91,7 @@ public class Escalonador {
 		this.operationsToRemove = new ArrayList<Operacao>();
 		this.operationsToRemoveAfterDeadLock = new ArrayList<Operacao>();
 		this.operationsToRemoveFromFinalHistoryAfterDeadLock = new ArrayList<String>();
+		this.operationsToDoAgain = new Operacao[maxTransactionLength];
 		this.reader = new Scanner(System.in);
 	}
 
@@ -373,10 +377,10 @@ public class Escalonador {
 		}		
 		
 		// Chegou no final da historia inicial, verificar se ha operacoes em bloqueio
-		verifyIfFoundDeadlock(operations);
+		verifyIfFoundDeadlock(operations, iterationLimit);
 	}
 
-	private void verifyIfFoundDeadlock(Operacao[] operations) {
+	private void verifyIfFoundDeadlock(Operacao[] operations, int iterationLimit) {
 		
 		int transactionToAbort = 0;
 		
@@ -411,6 +415,20 @@ public class Escalonador {
 			removeFinalHistory();
 			System.out.print("\n\nHistoria final apos abortar: ");
 			printFinalHistory(transactionToAbort);
+			
+			// Verificar as operacoes a serem refeitas
+			int index = 0;
+			System.out.println("\n");
+			for(int i=0 ; i<iterationLimit ; i++) {
+				if(operations[i].getTransacao() == transactionToAbort) {
+					operationsToDoAgain[index] = operations[i];
+					index++;
+				}
+			}
+			System.out.print("\nOperacoes a serem refeitas: ");
+			for(int i=0 ; i<index ; i++) {
+				operationsToDoAgain[i].printOperation();
+			}
 		}
 	}
 
